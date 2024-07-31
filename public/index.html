@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于 express 实现的博客站点</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue@3.2.2/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@1.1.0-beta.4/dist/index.css">
+    <script src="https://unpkg.com/element-plus@1.1.0-beta.4/dist/index.full.js"></script>
+</head>
+<body>
+    <div id="app">
+      <header class="header">
+        <div class="header-left">
+          Logo
+        </div>
+        <div class="header-right">
+          <el-button type="primary" @click="signupVisible = true">登录</el-button>
+        </div>
+      </header>
+      
+      <div v-loading="loading" style="width: 80vw;height: 80vh;margin: auto;">
+        <el-card v-for="item in list" class="blog-box">
+          <template #header>
+            <div class="list-header">
+              <span>{{item.title}}</span>
+              <span>{{item.author}}</span>
+            </div>
+          </template>
+          <div>
+            {{item.content}}
+          </div>
+        </el-card>
+      </div>
+      <el-dialog v-model="signupVisible" title="登录">
+        <el-form ref="signupFormRef" :model="signupForm" :rules="signupFormRules">
+          <el-form-item label="账号" prop="email">
+            <el-input v-model="signupForm.email" />
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="signupForm.password" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="signupVisible = false">取消</el-button>
+            <el-button type="primary" @click="onSubmit">登录</el-button>
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    <script>
+      const { ElMessage } = ElementPlus;
+      const App = {
+				data() {
+					return {
+            loading: true,
+						list: [],
+            signupVisible: false,
+            signupForm: {},
+            signupFormRules: {
+              email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+              password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+            },
+					};
+				},
+				mounted: function() {
+					var self = this;
+					axios.get("/api/v1/get/blog").then(function(res) {
+						self.list = res.data;
+            self.loading = false;
+					}).catch(() => {
+            self.loading = false;
+          });
+				},
+        methods: {
+          onSubmit() {
+            const formEl = this.$refs.signupFormRef;
+            formEl.validate((valid) => {
+              if (valid) {
+                const { signupForm } = this;
+                ElMessage.success(signupForm.email + ' 登录成功');
+                this.signupVisible = false;
+                this.signupForm = {};
+              } else {
+                console.log('error submit!')
+                return false
+              }
+            });
+          }
+        },
+			};
+			const app = Vue.createApp(App);
+			app.use(ElementPlus);
+			app.mount("#app");
+    </script>
+</body>
+</html>

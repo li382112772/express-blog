@@ -1,0 +1,17 @@
+body {
+  background-color: white;
+}
+.blog-box {
+  margin-bottom: 16px;
+}
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
